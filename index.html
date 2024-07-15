@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game do Labirinto</title>
+  <link rel="stylesheet" href="./style.css" /> <!-- Importa o arquivo de estilo CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> <!-- Importa o MathJax para renderização matemática -->
+</head>
+<body>
+  <!-- Áudios pré-carregados para o jogo -->
+  <audio id="fogOn" src="./fog-on.wav" preload="auto"></audio>
+  <audio id="fogOff" src="./fog-off.wav" preload="auto"></audio>
+  <audio id="victory" src="./victory.wav" preload="auto"></audio>
+  <audio id="wall" src="./wall.wav" preload="auto"></audio>
+
+  <!-- Divs principais do jogo -->
+  <div id="gradient"></div>
+  <div id="page">
+    <!-- Container para mensagens exibidas no jogo -->
+    <div id="Message-Container">
+      <div id="message">
+        <h1>Parabéns!</h1>
+        <p>Você conseguiu completar.</p>
+        <p id="moves" style="width: 500px; margin-left: -100px"></p>
+        <input
+          id="okBtn"
+          type="button"
+          onclick="toggleVisablity('Message-Container')"
+          value="Próximo"
+        />
+      </div>
+    </div>
+
+    <!-- Menu de opções -->
+    <div id="menu">
+      <div class="custom-select">
+        <!-- Seleção de dificuldade do labirinto -->
+        <select id="diffSelect">
+          <option value="10">Fácil</option>
+          <option value="20">Médio</option>
+          <option value="30">Difícil</option>
+          <option value="40">Extremo</option>
+          <option value="custom">Customizar</option>
+        </select>
+        <!-- Entrada para customização da dificuldade (visibilidade inicialmente oculta) -->
+        <input
+          type="number"
+          id="customInput"
+          value="5"
+          min="3"
+          max="100"
+          style="visibility: hidden"
+        />
+      </div>
+      <!-- Botão para iniciar o labirinto -->
+      <input
+        id="startMazeBtn"
+        type="button"
+        onclick="makeMaze()"
+        value="Start"
+      />
+      <!-- Checkbox para controle de neblina no jogo -->
+      <label
+        for="fogCheckbox"
+        style="font-weight: 400; color: aliceblue; margin-left: 64.5px"
+      >
+        Fog:
+      </label>
+      <input type="checkbox" id="fogCheckbox" />
+      <!-- Dica de jogo (em português, necessita de revisão de ortografia) -->
+      <f
+        pr="分数的计算公式如下:
+        $$\text{Score} = 100 \times \left(1 - \frac{\text{Steps} - \text{minSteps}}{\text{MaxSteps}} - \frac{\text{Time}}{\text{MaxTime}}\right)$$
+        迷宫的difficulty设为\(a\),MaxSteps设为\(a^2\),MaxTime设为2\(a^2\)<br />
+        If mode = fog,
+        \(\text{minSteps}\times1.01^a\)
+        $$\text{S(fog-normal)}=\frac{100\times\text{minSteps}\times\left(1.01^a-1\right)}{a^2}$$
+        "
+      >
+        Tips
+      </f>
+    </div>
+
+    <!-- Área de visualização do labirinto -->
+    <div id="view">
+      <div id="mazeContainer">
+        <canvas
+          id="mazeCanvas"
+          class="border"
+          height="1100"
+          width="1100"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Importa jQuery para manipulação de DOM (não é usado diretamente no código fornecido) -->
+  <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+  ></script>
+  <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.18/jquery.touchSwipe.min.js"
+  ></script>
+  <script src="./script.js"></script>
+  <script>
+    // dialog
+    var formulas = document.querySelectorAll("f");
+    for (var i = 0; i < formulas.length; i++) {
+      formulas[i].onclick = function (event) {
+        var proof = this.getAttribute("pr");
+        if (proof) {
+          var dialog = document.createElement("dialog");
+          dialog.innerHTML = proof;
+          document.body.appendChild(dialog);
+          dialog.showModal();
+          closeDialog(dialog);
+          // Renderiza fórmulas LaTeX dentro do diálogo
+          MathJax.typeset([dialog]);
+          // Ajusta dinamicamente a largura do conteúdo da página quando o dialog está sendo exibido
+          document.body.style.width = "calc(100% - 600px)";
+        }
+      };
+    }
+
+    // Função para fechar o diálogo se o clique ocorrer fora dele
+    function closeDialog(dialog) {
+      dialog.addEventListener("click", function (event) {
+        // Obtém as coordenadas do clique em relação ao canto superior esquerdo do diálogo
+        let x = event.clientX - dialog.offsetLeft;
+        let y = event.clientY - dialog.offsetTop;
+        // Verifica se o clique ocorreu dentro do diálogo
+        if (
+          x < 0 ||
+          x > dialog.offsetWidth ||
+          y < 0 ||
+          y > dialog.offsetHeight
+        ) {
+          // Se estiver fora, fecha o diálogo
+          dialog.close();
+          // Restaura a largura do conteúdo da página quando o diálogo é fechado
+          document.body.style.width = "calc(100%)";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
